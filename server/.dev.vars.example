@@ -1,0 +1,12 @@
+# Database - Neon PostgreSQL connection string
+# Get this from your Neon dashboard: https://console.neon.tech
+DATABASE_URL=postgresql://user:password@ep-example-123456.us-east-2.aws.neon.tech/neondb?sslmode=require
+
+# Better Auth secret - must be at least 32 characters
+# Generate with: openssl rand -base64 32
+BETTER_AUTH_SECRET=your-secret-key-at-least-32-characters-long
+
+# Google OAuth credentials
+# Create at: https://console.cloud.google.com/apis/credentials
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
