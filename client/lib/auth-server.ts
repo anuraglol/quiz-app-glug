@@ -32,6 +32,7 @@ export async function getServerSession(headers: Headers): Promise<ServerSession>
         cookie: headers.get("cookie") || "",
       },
       cache: "no-store",
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -39,7 +40,7 @@ export async function getServerSession(headers: Headers): Promise<ServerSession>
     }
 
     const data = await response.json();
-    
+
     // Check if session exists and has required fields
     if (!data || !data.session || !data.user) {
       return null;
