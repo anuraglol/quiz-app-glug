@@ -1,11 +1,10 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { createAuth, type AuthEnv } from "./lib/auth";
+import { auth } from "./lib/better-auth";
 import type { User, Session } from "./lib/db";
 import quiz from "./routes/quiz";
 
-type Bindings = AuthEnv;
 const URIS = ["http://localhost:3000", "https://quiz-app-glug-client.vercel.app"];
 
 type Variables = {
@@ -13,7 +12,7 @@ type Variables = {
   session: Session | null;
 };
 
-const app = new Hono<{ Bindings: Bindings; Variables: Variables }>();
+const app = new Hono<{ Bindings: CloudflareBindings; Variables: Variables }>();
 
 // Logging middleware
 app.use("*", logger());
@@ -41,19 +40,16 @@ app.use(
 
 // Better Auth handler
 app.on(["POST", "GET"], "/api/auth/*", (c) => {
-  const auth = createAuth(c.env);
-  return auth.handler(c.req.raw);
+  return auth(c.env).handler(c.req.raw);
 });
 
 // Session middleware for protected routes
 app.use("/api/*", async (c, next) => {
-  // Skip auth routes - they handle their own session
   if (c.req.path.startsWith("/api/auth")) {
     return next();
   }
 
-  const auth = createAuth(c.env);
-  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  const session = await auth(c.env).api.getSession({ headers: c.req.raw.headers });
 
   if (!session) {
     c.set("user", null);
@@ -68,7 +64,7 @@ app.use("/api/*", async (c, next) => {
 
 // Health check
 app.get("/", (c) => {
-  return c.json({ status: "ok", message: "Quiz App API" });
+  return c.json({ status: "ok" });
 });
 
 // Example protected route

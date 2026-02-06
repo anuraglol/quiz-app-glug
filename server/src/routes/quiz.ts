@@ -3,9 +3,7 @@ import { createDb, question, quizAttempt, eq, asc } from "../lib/db";
 import type { User, Session } from "../lib/db";
 
 type Env = {
-  Bindings: {
-    DATABASE_URL: string;
-  };
+  Bindings: CloudflareBindings;
   Variables: {
     user: User | null;
     session: Session | null;

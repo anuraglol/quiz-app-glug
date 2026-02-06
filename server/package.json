@@ -3,13 +3,14 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy --minify --env production",
+    "deploy": "npm run cf-typegen && wrangler secret bulk .dev.vars && wrangler deploy --minify --env production",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
     "push": "drizzle-kit push",
     "studio": "drizzle-kit studio",
-    "seed": "tsx src/seed.ts"
+    "seed": "tsx src/seed.ts",
+    "better-auth-gen-schema": "npx @better-auth/cli@latest generate --config ./better-auth.config.ts --output ./src/lib/schema.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
