@@ -1,15 +1,16 @@
 {
   "name": "quiz-app",
   "private": true,
-  "workspaces": ["packages/*", "client", "server"],
+  "workspaces": ["client", "server"],
   "scripts": {
     "dev": "bun run --parallel dev:client dev:server",
     "dev:client": "bun run --cwd client dev",
     "dev:server": "bun run --cwd server dev",
     "build": "bun run --cwd client build",
-    "db:generate": "bun run --cwd packages/db generate",
-    "db:migrate": "bun run --cwd packages/db migrate",
-    "db:push": "bun run --cwd packages/db push",
-    "db:studio": "bun run --cwd packages/db studio"
+    "db:generate": "bun run --cwd server generate",
+    "db:migrate": "bun run --cwd server migrate",
+    "db:push": "bun run --cwd server push",
+    "db:studio": "bun run --cwd server studio",
+    "db:seed": "bun run --cwd server seed"
   }
 }

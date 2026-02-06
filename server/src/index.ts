@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { createAuth, type AuthEnv } from "./lib/auth";
-import type { User, Session } from "@quiz-app/db";
+import type { User, Session } from "./lib/db";
 import quiz from "./routes/quiz";
 
 type Bindings = AuthEnv;

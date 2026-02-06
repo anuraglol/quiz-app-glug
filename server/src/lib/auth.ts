@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { createDb } from "@quiz-app/db";
+import { createDb } from "./db";
 
 export type AuthEnv = {
   DATABASE_URL: string;

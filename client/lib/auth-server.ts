@@ -1,4 +1,4 @@
-import { createDb, type User, type Session } from "@quiz-app/db";
+import { createDb, type User, type Session } from "./db";
 
 /**
  * Server-side database client for Next.js Server Components and Server Actions.

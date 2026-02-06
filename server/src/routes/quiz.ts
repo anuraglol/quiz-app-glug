@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { createDb, question, quizAttempt, eq, asc } from "@quiz-app/db";
-import type { User, Session } from "@quiz-app/db";
+import { createDb, question, quizAttempt, eq, asc } from "../lib/db";
+import type { User, Session } from "../lib/db";
 
 type Env = {
   Bindings: {
