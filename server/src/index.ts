@@ -6,6 +6,7 @@ import type { User, Session } from "@quiz-app/db";
 import quiz from "./routes/quiz";
 
 type Bindings = AuthEnv;
+const URIS = ["http://localhost:3000", "https://quiz-app-glug-client.vercel.app"];
 
 type Variables = {
   user: User | null;
@@ -21,21 +22,21 @@ app.use("*", logger());
 app.use(
   "/api/auth/*",
   cors({
-    origin: ["http://localhost:3000"],
+    origin: URIS,
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
-  })
+  }),
 );
 
 app.use(
   "/api/quiz/*",
   cors({
-    origin: ["http://localhost:3000"],
+    origin: URIS,
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "OPTIONS"],
     credentials: true,
-  })
+  }),
 );
 
 // Better Auth handler

@@ -11,37 +11,43 @@ export type AuthEnv = {
   GOOGLE_CLIENT_SECRET: string;
 };
 
-/**
- * Create a Better Auth instance.
- * Called per-request in Cloudflare Workers to access environment variables.
- */
+let auth: ReturnType<typeof betterAuth> | null = null;
+
 export function createAuth(env: AuthEnv) {
-  const db = createDb(env.DATABASE_URL);
+  if (!auth) {
+    const db = createDb(env.DATABASE_URL);
 
-  return betterAuth({
-    database: drizzleAdapter(db, {
-      provider: "pg",
-    }),
-    baseURL: env.BETTER_AUTH_URL,
-    secret: env.BETTER_AUTH_SECRET,
-    emailAndPassword: {
-      enabled: true,
-    },
-    socialProviders: {
-      google: {
-        clientId: env.GOOGLE_CLIENT_ID,
-        clientSecret: env.GOOGLE_CLIENT_SECRET,
-        redirectURI: `${env.BETTER_AUTH_URL}/api/auth/callback/google`,
+    auth = betterAuth({
+      database: drizzleAdapter(db, {
+        provider: "pg",
+      }),
+      baseURL: env.BETTER_AUTH_URL,
+      secret: env.BETTER_AUTH_SECRET,
+      emailAndPassword: {
+        enabled: true,
       },
-    },
-    trustedOrigins: [env.CLIENT_URL],
-    advanced: {
-      defaultCookieAttributes: {
-        sameSite: "lax",
-        secure: false, // Set to true in production with HTTPS
+      socialProviders: {
+        google: {
+          clientId: env.GOOGLE_CLIENT_ID,
+          clientSecret: env.GOOGLE_CLIENT_SECRET,
+          redirectURI: `${env.BETTER_AUTH_URL}/api/auth/callback/google`,
+        },
       },
-    },
-  });
+      trustedOrigins: [env.CLIENT_URL],
+      advanced: {
+        defaultCookieAttributes: {
+          sameSite: "lax",
+          secure: true, // Workers = HTTPS
+          advanced: {
+            defaultCookieAttributes: {
+              sameSite: "lax",
+              secure: env.BETTER_AUTH_URL.startsWith("https"),
+            },
+          },
+        },
+      },
+    });
+  }
+
+  return auth;
 }
-
-export type Auth = ReturnType<typeof createAuth>;
