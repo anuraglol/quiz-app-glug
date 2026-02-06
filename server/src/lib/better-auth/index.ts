@@ -24,8 +24,9 @@ export const auth = (env: CloudflareBindings): ReturnType<typeof betterAuth> => 
     },
     advanced: {
       defaultCookieAttributes: {
-        sameSite: "lax",
-        secure: env.BETTER_AUTH_URL.startsWith("https"),
+        sameSite: "none",
+        secure: true,
+        domain: "server.imanuraglol.workers.dev",
       },
     },
   });
