@@ -8,6 +8,7 @@ import * as schema from "../schema";
 export const auth = (env: CloudflareBindings): ReturnType<typeof betterAuth> => {
   const sql = neon(env.DATABASE_URL);
   const db = drizzle(sql, { schema });
+  const isProd = env.ENVIRONMENT === "prod";
 
   return betterAuth({
     ...betterAuthOptions,
@@ -24,9 +25,8 @@ export const auth = (env: CloudflareBindings): ReturnType<typeof betterAuth> => 
     },
     advanced: {
       defaultCookieAttributes: {
-        sameSite: "none",
-        secure: true,
-        domain: "server.imanuraglol.workers.dev",
+        sameSite: isProd ? "none" : "lax",
+        secure: isProd,
       },
     },
   });
