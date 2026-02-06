@@ -1,32 +1,20 @@
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/auth-server";
 import { ResultClient } from "./result-client";
+import { getQuizStatus } from "../../api/quiz/status/route";
 
 export default async function Page() {
-  const session = await getServerSession(await headers());
+  const session = await getServerSession();
 
   if (!session) {
     redirect("/");
   }
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
-  const res = await fetch(`${apiUrl}/api/quiz/status`, {
-    headers: {
-      cookie: (await headers()).get("cookie") || "",
-    },
-    cache: "no-store",
-  });
-
-  if (!res.ok) {
-    redirect("/quiz");
-  }
-
-  const data = await res.json();
+  const data = await getQuizStatus(session.user);
 
   if (!data.taken) {
     redirect("/quiz");
   }
 
-  return <ResultClient score={data.score} total={data.total} />;
+  return <ResultClient score={data.score!} total={data.total!} />;
 }

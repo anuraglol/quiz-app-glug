@@ -1,53 +1,20 @@
-import { createDb, type User, type Session } from "./db";
-
-/**
- * Server-side database client for Next.js Server Components and Server Actions.
- * Uses the same Neon PostgreSQL database as the Hono backend.
- */
-export function getDb() {
-  const databaseUrl = process.env.DATABASE_URL;
-
-  if (!databaseUrl) {
-    throw new Error("DATABASE_URL environment variable is not set");
-  }
-
-  return createDb(databaseUrl);
-}
+import { auth } from "./auth";
+import { headers } from "next/headers";
+import type { User, Session } from "./db";
 
 export type ServerSession = {
   session: Session;
   user: User;
 } | null;
 
-/**
- * Fetch session from the backend API.
- * Use this in Server Components to get the current user session.
- */
-export async function getServerSession(headers: Headers): Promise<ServerSession> {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787";
+export async function getServerSession(): Promise<ServerSession> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  try {
-    const response = await fetch(`${apiUrl}/api/auth/get-session`, {
-      headers: {
-        cookie: headers.get("cookie") || "",
-      },
-      cache: "no-store",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-
-    // Check if session exists and has required fields
-    if (!data || !data.session || !data.user) {
-      return null;
-    }
-
-    return data as ServerSession;
-  } catch {
+  if (!session) {
     return null;
   }
+
+  return session as ServerSession;
 }

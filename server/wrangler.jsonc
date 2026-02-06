@@ -7,7 +7,6 @@
 
   // Default = dev
   "vars": {
-    "BETTER_AUTH_URL": "http://localhost:8787",
     "CLIENT_URL": "http://localhost:3000",
     "ENVIRONMENT": "dev"
   },
@@ -15,7 +14,6 @@
   "env": {
     "production": {
       "vars": {
-        "BETTER_AUTH_URL": "https://server.imanuraglol.workers.dev",
         "CLIENT_URL": "https://quiz-app-glug-client.vercel.app",
         "ENVIRONMENT": "prod"
       }

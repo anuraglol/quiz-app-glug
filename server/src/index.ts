@@ -1,73 +1,56 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
-import { auth } from "./lib/better-auth";
-import type { User, Session } from "./lib/db";
+import { verifyUserJWT, type UserJWTPayload } from "./lib/jwt";
 import quiz from "./routes/quiz";
 
-const URIS = ["http://localhost:3000", "https://quiz-app-glug-client.vercel.app"];
+const CORS_ORIGINS = [
+  "http://localhost:3000",
+  "https://quiz-app-glug-client.vercel.app",
+];
 
 type Variables = {
-  user: User | null;
-  session: Session | null;
+  user: UserJWTPayload | null;
 };
 
 const app = new Hono<{ Bindings: CloudflareBindings; Variables: Variables }>();
 
-// Logging middleware
 app.use("*", logger());
 
-// CORS for frontend
 app.use(
-  "/api/auth/*",
+  "/api/*",
   cors({
-    origin: URIS,
+    origin: CORS_ORIGINS,
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
-  }),
+  })
 );
 
-app.use(
-  "/api/quiz/*",
-  cors({
-    origin: URIS,
-    allowHeaders: ["Content-Type", "Authorization"],
-    allowMethods: ["GET", "POST", "OPTIONS"],
-    credentials: true,
-  }),
-);
-
-// Better Auth handler
-app.on(["POST", "GET"], "/api/auth/*", (c) => {
-  return auth(c.env).handler(c.req.raw);
-});
-
-// Session middleware for protected routes
 app.use("/api/*", async (c, next) => {
-  if (c.req.path.startsWith("/api/auth")) {
+  const authHeader = c.req.header("Authorization");
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    c.set("user", null);
     return next();
   }
 
-  const session = await auth(c.env).api.getSession({ headers: c.req.raw.headers });
+  const token = authHeader.slice(7);
 
-  if (!session) {
+  try {
+    const payload = await verifyUserJWT(token, c.env.JWT_SECRET);
+    c.set("user", payload);
+  } catch {
     c.set("user", null);
-    c.set("session", null);
-  } else {
-    c.set("user", session.user as User);
-    c.set("session", session.session as Session);
   }
 
   return next();
 });
 
-// Health check
 app.get("/", (c) => {
   return c.json({ status: "ok" });
 });
 
-// Example protected route
 app.get("/api/me", (c) => {
   const user = c.get("user");
 

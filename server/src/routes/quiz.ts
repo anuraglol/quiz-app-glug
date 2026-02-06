@@ -1,12 +1,11 @@
 import { Hono } from "hono";
 import { createDb, question, quizAttempt, eq, asc } from "../lib/db";
-import type { User, Session } from "../lib/db";
+import type { UserJWTPayload } from "../lib/jwt";
 
 type Env = {
   Bindings: CloudflareBindings;
   Variables: {
-    user: User | null;
-    session: Session | null;
+    user: UserJWTPayload | null;
   };
 };
 
@@ -20,7 +19,7 @@ quiz.get("/status", async (c) => {
 
   const db = createDb(c.env.DATABASE_URL);
   const attempt = await db.query.quizAttempt.findFirst({
-    where: eq(quizAttempt.userId, user.id),
+    where: eq(quizAttempt.userId, user.sub),
   });
 
   if (attempt) {
@@ -43,7 +42,7 @@ quiz.get("/questions", async (c) => {
   const db = createDb(c.env.DATABASE_URL);
 
   const attempt = await db.query.quizAttempt.findFirst({
-    where: eq(quizAttempt.userId, user.id),
+    where: eq(quizAttempt.userId, user.sub),
   });
 
   if (attempt) {
@@ -72,7 +71,7 @@ quiz.post("/submit", async (c) => {
   const db = createDb(c.env.DATABASE_URL);
 
   const existingAttempt = await db.query.quizAttempt.findFirst({
-    where: eq(quizAttempt.userId, user.id),
+    where: eq(quizAttempt.userId, user.sub),
   });
 
   if (existingAttempt) {
@@ -110,11 +109,11 @@ quiz.post("/submit", async (c) => {
   try {
     await db.insert(quizAttempt).values({
       id: attemptId,
-      userId: user.id,
+      userId: user.sub,
       score,
       totalQuestions: questions.length,
     });
-  } catch (error) {
+  } catch {
     return c.json({ error: "Quiz already taken" }, 403);
   }
 

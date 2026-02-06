@@ -30,10 +30,9 @@ export function QuizClient() {
   useEffect(() => {
     async function fetchQuestions() {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/quiz/questions`,
-          { credentials: "include" }
-        );
+        const res = await fetch("/api/quiz/questions", {
+          credentials: "include",
+        });
 
         if (res.status === 403) {
           router.push("/quiz/result");
@@ -85,15 +84,12 @@ export function QuizClient() {
     setError(null);
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/quiz/submit`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ answers }),
-        }
-      );
+      const res = await fetch("/api/quiz/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ answers }),
+      });
 
       if (!res.ok) {
         const data = await res.json();
